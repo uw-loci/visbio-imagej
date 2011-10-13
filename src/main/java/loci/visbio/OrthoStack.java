@@ -83,7 +83,7 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 
 	private static final double INITIAL_STRETCH = 50;
 	private static final double MIN_STRETCH = 1;
-	private static final double MAX_STRETCH = 200;
+	private static final double MAX_STRETCH = 1000;
 	private static final double STEP_STRETCH = 1;
 
 	private static final double INITIAL_ANGLE = 75;
