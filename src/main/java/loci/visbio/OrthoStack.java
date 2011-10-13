@@ -38,6 +38,8 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.WindowManager;
+import ij.io.FileSaver;
+import ij.io.SaveDialog;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 
@@ -47,13 +49,18 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.rmi.RemoteException;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -79,8 +86,8 @@ import visad.java3d.MouseBehaviorJ3D;
  * 
  * @author Curtis Rueden
  */
-public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
-	WindowListener
+public class OrthoStack extends JPanel implements PlugIn, ActionListener,
+	AdjustmentListener, WindowListener
 {
 
 	private static final double INITIAL_STRETCH = 50;
@@ -107,6 +114,8 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 	private DoubleSlider stretchSlider;
 	private DoubleSlider angleSlider;
 	private DoubleSlider zoomSlider;
+	private JCheckBox boundingBoxToggle;
+	private JButton snapshotButton;
 
 	public ImagePlus getImagePlus() {
 		return imp;
@@ -193,11 +202,18 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		zoomSlider = new DoubleSlider(INITIAL_ZOOM, MIN_ZOOM, MAX_ZOOM, STEP_ZOOM);
 		zoomSlider.addAdjustmentListener(this);
 
+		// create bounding box checkbox
+		boundingBoxToggle = new JCheckBox("Show bounding box", true);
+		boundingBoxToggle.addActionListener(this);
+
+		snapshotButton = new JButton("Take snapshot");
+		snapshotButton.addActionListener(this);
+
 		// build a panel to house the sliders
 		final JPanel sliderPanel = new JPanel();
 		final String layout = "fillx,wrap 2";
 		final String cols = "[pref|200px,fill,grow]";
-		final String rows = "[pref|pref|pref]";
+		final String rows = "[pref|pref|pref|pref|pref]";
 		sliderPanel.setLayout(new MigLayout(layout, cols, rows));
 		sliderPanel.add(stretchLabel);
 		sliderPanel.add(stretchSlider);
@@ -205,6 +221,8 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		sliderPanel.add(angleSlider);
 		sliderPanel.add(zoomLabel);
 		sliderPanel.add(zoomSlider);
+		sliderPanel.add(boundingBoxToggle, "span 2");
+		sliderPanel.add(snapshotButton, "span 2");
 
 		// add components to main panel
 		setLayout(new BorderLayout());
@@ -212,6 +230,37 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		add(sliderPanel, BorderLayout.EAST);
 
 		updateProjection();
+	}
+
+	public void setBoundingBox(final boolean selected) {
+		try {
+			display.getDisplayRenderer().setBoxOn(selected);
+		}
+		catch (final RemoteException exc) {
+			IJ.handleException(exc);
+		}
+		catch (final VisADException exc) {
+			IJ.handleException(exc);
+		}
+	}
+
+	public BufferedImage getSnapshot() {
+		return display.getImage();
+	}
+
+	public void saveSnapshot() {
+		// prompt for filename to save
+		final SaveDialog saveDialog =
+			new SaveDialog("Save Snapshot", imp.getTitle(), ".png");
+		final String directory = saveDialog.getDirectory();
+		final String fileName = saveDialog.getFileName();
+		final File file = new File(directory, fileName);
+
+		// save snapshot
+		final BufferedImage snapshot = getSnapshot();
+		final ImagePlus impSnapshot = new ImagePlus(fileName, snapshot);
+		final FileSaver fileSaver = new FileSaver(impSnapshot);
+		fileSaver.saveAsPng(file.getPath());
 	}
 
 	// -- PlugIn methods --
@@ -235,7 +284,8 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		}
 
 		// add ortho stack to a window frame
-		final JFrame frame = new JFrame(getImagePlus().getTitle());
+		final String title = "Ortho Stack - " + getImagePlus().getTitle();
+		final JFrame frame = new JFrame(title);
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(this);
 		frame.setContentPane(this);
@@ -245,6 +295,19 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setSize(frame.getWidth(), 9 * screenSize.height / 10);
 		frame.setVisible(true);
+	}
+
+	// -- ActionListener methods --
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+		final Object src = e.getSource();
+		if (src == boundingBoxToggle) {
+			setBoundingBox(boundingBoxToggle.isSelected());
+		}
+		else if (src == snapshotButton) {
+			saveSnapshot();
+		}
 	}
 
 	// -- AdjustmentListener methods --
