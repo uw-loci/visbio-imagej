@@ -79,7 +79,6 @@ import visad.ScalarMap;
 import visad.VisADException;
 import visad.bom.ImageRendererJ3D;
 import visad.java3d.DisplayImplJ3D;
-import visad.java3d.MouseBehaviorJ3D;
 
 /**
  * Visualizes a stack of image planes in an aligned parallel projection.
@@ -440,7 +439,7 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		final double scale = zoom, scaleZ = scale * stretch;
 		final double transX = 0, transY = 0, transZ = 0;
 		final double[] matrix =
-			MouseBehaviorJ3D.static_make_matrix(rotX, rotY, rotZ, scale, scale,
+			display.getMouseBehavior().make_matrix(rotX, rotY, rotZ, scale, scale,
 				scaleZ, transX, transY, transZ);
 		try {
 			display.getProjectionControl().setMatrix(matrix);
