@@ -244,10 +244,6 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		}
 	}
 
-	public BufferedImage getSnapshot() {
-		return display.getImage();
-	}
-
 	public void saveSnapshot() {
 		// prompt for filename to save
 		final SaveDialog saveDialog =
@@ -256,11 +252,24 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		final String fileName = saveDialog.getFileName();
 		final File file = new File(directory, fileName);
 
-		// save snapshot
-		final BufferedImage snapshot = getSnapshot();
-		final ImagePlus impSnapshot = new ImagePlus(fileName, snapshot);
-		final FileSaver fileSaver = new FileSaver(impSnapshot);
-		fileSaver.saveAsPng(file.getPath());
+		// NB: VisAD snapshots can only be taken from *non-EDT* threads.
+		final Thread snapshotThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				final BufferedImage snapshot = getDisplay().getImage();
+				final ImagePlus impSnapshot = new ImagePlus(file.getName(), snapshot);
+				final FileSaver fileSaver = new FileSaver(impSnapshot);
+				fileSaver.saveAsPng(file.getPath());
+			}
+		}, "VisAD-Snapshot");
+		snapshotThread.start();
+		try {
+			snapshotThread.join();
+		}
+		catch (final InterruptedException exc) {
+			IJ.handleException(exc);
+		}
 	}
 
 	// -- PlugIn methods --
