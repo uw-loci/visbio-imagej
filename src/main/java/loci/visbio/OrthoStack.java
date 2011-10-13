@@ -122,7 +122,15 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		this.imp = imp;
 		final int sizeX = imp.getWidth();
 		final int sizeY = imp.getHeight();
+		final int sizeC = imp.getNChannels();
 		final int sizeZ = imp.getNSlices();
+		final int sizeT = imp.getNFrames();
+		final int[] lengths = { sizeC, sizeZ, sizeT };
+
+		final int posC = imp.getChannel() - 1;
+		final int posZ = imp.getSlice() - 1;
+		final int posT = imp.getFrame() - 1;
+		final int[] pos = { posC, posZ, posT };
 
 		// create VisAD display
 		if (display != null) display.destroy();
@@ -145,11 +153,11 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		// add planes to display
 		final ImageStack stack = imp.getStack();
 		for (int z = 0; z < sizeZ; z++) {
-			// TODO - support for multi-C and/or multi-T data as well
-			// need to convert (Z, C, T) triple into processor index
+			pos[1] = z;
 
 			// convert plane to BufferedImage
-			final ImageProcessor ip = stack.getProcessor(z + 1);
+			final int n = positionToRaster(pos, lengths) + 1;
+			final ImageProcessor ip = stack.getProcessor(n);
 			final Image image = ip.createImage();
 			final BufferedImage bufImage = makeBuffered(image);
 			final BufferedImage goodImage = ImageFlatField.make3ByteRGB(bufImage);
@@ -366,6 +374,60 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 		catch (final RemoteException exc) {
 			exc.printStackTrace();
 		}
+	}
+
+	/**
+	 * Computes a unique 1-D index corresponding to the given multidimensional
+	 * position.
+	 * 
+	 * @param pos position along each dimensional axis
+	 * @param lengths the maximum value for each positional dimension
+	 * @return rasterized index value
+	 */
+	public static int positionToRaster(final int[] pos, final int... lengths) {
+		int offset = 1;
+		int raster = 0;
+		for (int i = 0; i < pos.length; i++) {
+			raster += offset * pos[i];
+			offset *= lengths[i];
+		}
+		return raster;
+	}
+
+	/**
+	 * Computes a unique N-D position corresponding to the given rasterized index
+	 * value.
+	 * 
+	 * @param raster rasterized index value
+	 * @param lengths the maximum value at each positional dimension
+	 * @return position along each dimensional axis
+	 */
+	public static int[] rasterToPosition(final int raster, final int... lengths) {
+		return rasterToPosition(new int[lengths.length], raster, lengths);
+	}
+
+	/**
+	 * Computes a unique N-D position corresponding to the given rasterized index
+	 * value.
+	 * 
+	 * @param pos preallocated position array to populate with the result
+	 * @param raster rasterized index value
+	 * @param lengths the maximum value at each positional dimension
+	 * @return position along each dimensional axis
+	 */
+	public static int[] rasterToPosition(final int[] pos, final int raster,
+		final int... lengths)
+	{
+		int offset = 1;
+		int r = raster;
+		for (int i = 0; i < pos.length; i++) {
+			final int nextOffset = offset * lengths[i];
+			final int q = i < pos.length - 1 ? r % nextOffset : r;
+			pos[i] = q / offset;
+			r -= q;
+			offset = nextOffset;
+		}
+		return pos;
 	}
 
 }
