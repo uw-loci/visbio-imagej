@@ -373,9 +373,15 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		display.addMap(new ScalarMap(xy[0], Display.XAxis));
 		display.addMap(new ScalarMap(xy[1], Display.YAxis));
 		if (v.length == 3) {
-			display.addMap(new ScalarMap(v[0], Display.Red));
-			display.addMap(new ScalarMap(v[1], Display.Green));
-			display.addMap(new ScalarMap(v[2], Display.Blue));
+			final ScalarMap rMap = new ScalarMap(v[0], Display.Red);
+			final ScalarMap gMap = new ScalarMap(v[1], Display.Green);
+			final ScalarMap bMap = new ScalarMap(v[2], Display.Blue);
+			display.addMap(rMap);
+			display.addMap(gMap);
+			display.addMap(bMap);
+			rMap.setRange(0, 255);
+			gMap.setRange(0, 255);
+			bMap.setRange(0, 255);
 		}
 		else {
 			for (int i = 0; i < v.length; i++) {
