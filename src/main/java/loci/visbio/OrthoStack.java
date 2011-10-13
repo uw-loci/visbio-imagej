@@ -328,7 +328,6 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 	private BufferedImage makeBuffered(final Image image) {
 		if (image instanceof BufferedImage) return (BufferedImage) image;
 
-		// TODO: better way to handle color model (don't just assume RGB)
 		loadImage(image);
 		final BufferedImage img =
 			new BufferedImage(image.getWidth(this), image.getHeight(this),
