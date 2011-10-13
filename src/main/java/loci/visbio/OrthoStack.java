@@ -42,9 +42,11 @@ import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.WindowEvent;
@@ -224,11 +226,16 @@ public class OrthoStack extends JPanel implements PlugIn, AdjustmentListener,
 			IJ.handleException(exc);
 		}
 
+		// add ortho stack to a window frame
 		final JFrame frame = new JFrame(getImagePlus().getTitle());
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(this);
 		frame.setContentPane(this);
+
+		// size frame and display onscreen
 		frame.pack();
+		final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setSize(frame.getWidth(), 9 * screenSize.height / 10);
 		frame.setVisible(true);
 	}
 
