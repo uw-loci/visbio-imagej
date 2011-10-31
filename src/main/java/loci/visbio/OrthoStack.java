@@ -302,10 +302,10 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		try {
 			setImagePlus(currentImage);
 		}
-		catch (final VisADException exc) {
+		catch (final RemoteException exc) {
 			IJ.handleException(exc);
 		}
-		catch (final RemoteException exc) {
+		catch (final VisADException exc) {
 			IJ.handleException(exc);
 		}
 
@@ -465,10 +465,10 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		try {
 			display.getProjectionControl().setMatrix(matrix);
 		}
-		catch (final VisADException exc) {
+		catch (final RemoteException exc) {
 			exc.printStackTrace();
 		}
-		catch (final RemoteException exc) {
+		catch (final VisADException exc) {
 			exc.printStackTrace();
 		}
 	}
