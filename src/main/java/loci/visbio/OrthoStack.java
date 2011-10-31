@@ -71,7 +71,6 @@ import visad.ConstantMap;
 import visad.DataReference;
 import visad.DataReferenceImpl;
 import visad.Display;
-import visad.GraphicsModeControl;
 import visad.ImageFlatField;
 import visad.ProjectionControl;
 import visad.RealType;
@@ -113,6 +112,7 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 	private DoubleSlider stretchSlider;
 	private DoubleSlider angleSlider;
 	private DoubleSlider zoomSlider;
+	private JCheckBox parallelToggle;
 	private JCheckBox boundingBoxToggle;
 	private JButton snapshotButton;
 
@@ -143,8 +143,7 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		// create VisAD display
 		if (display != null) display.destroy();
 		display = new DisplayImplJ3D("display");
-		final GraphicsModeControl gmc = display.getGraphicsModeControl();
-		gmc.setProjectionPolicy(DisplayImplJ3D.PARALLEL_PROJECTION);
+		setParallelProjection(true);
 
 		// compute initial aspect ratio
 		physicalX = imp.getCalibration().getX(sizeX);
@@ -201,6 +200,10 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		zoomSlider = new DoubleSlider(INITIAL_ZOOM, MIN_ZOOM, MAX_ZOOM, STEP_ZOOM);
 		zoomSlider.addAdjustmentListener(this);
 
+		// create parallel projection checkbox
+		parallelToggle = new JCheckBox("Parallel projection", true);
+		parallelToggle.addActionListener(this);
+
 		// create bounding box checkbox
 		boundingBoxToggle = new JCheckBox("Show bounding box", true);
 		boundingBoxToggle.addActionListener(this);
@@ -212,7 +215,7 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		final JPanel sliderPanel = new JPanel();
 		final String layout = "fillx,wrap 2";
 		final String cols = "[pref|200px,fill,grow]";
-		final String rows = "[pref|pref|pref|pref|pref]";
+		final String rows = "[pref|pref|pref|pref|pref|pref]";
 		sliderPanel.setLayout(new MigLayout(layout, cols, rows));
 		sliderPanel.add(stretchLabel);
 		sliderPanel.add(stretchSlider);
@@ -220,6 +223,7 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		sliderPanel.add(angleSlider);
 		sliderPanel.add(zoomLabel);
 		sliderPanel.add(zoomSlider);
+		sliderPanel.add(parallelToggle, "span 2");
 		sliderPanel.add(boundingBoxToggle, "span 2");
 		sliderPanel.add(snapshotButton, "span 2");
 
@@ -229,6 +233,20 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 		add(sliderPanel, BorderLayout.EAST);
 
 		updateProjection();
+	}
+
+	public void setParallelProjection(final boolean parallel) {
+		try {
+			display.getGraphicsModeControl().setProjectionPolicy(
+				parallel ? DisplayImplJ3D.PARALLEL_PROJECTION
+					: DisplayImplJ3D.PERSPECTIVE_PROJECTION);
+		}
+		catch (final RemoteException exc) {
+			IJ.handleException(exc);
+		}
+		catch (final VisADException exc) {
+			IJ.handleException(exc);
+		}
 	}
 
 	public void setBoundingBox(final boolean selected) {
@@ -310,6 +328,9 @@ public class OrthoStack extends JPanel implements PlugIn, ActionListener,
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final Object src = e.getSource();
+		if (src == parallelToggle) {
+			setParallelProjection(parallelToggle.isSelected());
+		}
 		if (src == boundingBoxToggle) {
 			setBoundingBox(boundingBoxToggle.isSelected());
 		}
