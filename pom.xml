@@ -71,8 +71,8 @@
 		<url>https://github.com/uw-loci/visbio-imagej/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://jenkins.imagej.net/job/visbio-imagej</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/loci/visbio-imagej</url>
 	</ciManagement>
 
 	<properties>
