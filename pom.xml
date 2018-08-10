@@ -18,7 +18,7 @@
 
 	<name>VisBio plugins for ImageJ</name>
 	<description>ImageJ plugins for 3D visualization using the VisAD toolkit.</description>
-	<url>https://github.com/loci/visbio-imagej</url>
+	<url>https://github.com/uw-loci/visbio-imagej</url>
 	<inceptionYear>2011</inceptionYear>
 	<organization>
 		<name>LOCI</name>
@@ -69,7 +69,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/loci/visbio-imagej</url>
+		<url>https://travis-ci.org/uw-loci/visbio-imagej</url>
 	</ciManagement>
 
 	<properties>

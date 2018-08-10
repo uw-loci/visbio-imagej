@@ -1,2 +1,2 @@
-[![](https://travis-ci.com/uw-loci/visbio-imagej.svg?branch=master)](https://travis-ci.com/uw-loci/visbio-imagej)
+[![](https://travis-ci.org/uw-loci/visbio-imagej.svg?branch=master)](https://travis-ci.org/uw-loci/visbio-imagej)
 
