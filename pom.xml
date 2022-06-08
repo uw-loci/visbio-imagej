@@ -68,8 +68,8 @@
 		<url>https://github.com/uw-loci/visbio-imagej/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.org/uw-loci/visbio-imagej</url>
+		<system>GitHub Actions</system>
+		<url>https://github.com/uw-loci/visbio-imagej/actions</url>
 	</ciManagement>
 
 	<properties>
@@ -80,7 +80,7 @@ Wisconsin-Madison.</license.copyrightOwners>
 		<license.projectName>VisBio plugins for ImageJ.</license.projectName>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>deploy-to-scijava</releaseProfiles>
+		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<visad.version>2.0.0-scijava-1</visad.version>
 		<enforcer.skip>true</enforcer.skip>

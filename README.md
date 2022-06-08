@@ -1,2 +1,2 @@
-[![](https://travis-ci.org/uw-loci/visbio-imagej.svg?branch=master)](https://travis-ci.org/uw-loci/visbio-imagej)
+[![](https://github.com/uw-loci/visbio-imagej/actions/workflows/build-main.yml/badge.svg)](https://github.com/uw-loci/visbio-imagej/actions/workflows/build-main.yml)
 
